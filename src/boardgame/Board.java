@@ -8,6 +8,9 @@ public class Board {
 	
 	
 	public Board(int rows, int columns) {
+		if (rows < 1 || columns < 1) { // Programação defensiva
+			throw new BoardException("Error creating board: there must be at least 1 row and 1 column.");
+		}
 		this.rows = rows;
 		this.columns = columns;
 		pieces = new Piece[rows][columns]; // Matriz de peças instanciada na quantidade de linhas e colunas informadas.
@@ -18,32 +21,47 @@ public class Board {
 		return rows;
 	}
 
-
-	public void setRows(int rows) {
-		this.rows = rows;
-	}
-
-
 	public int getColumns() {
 		return columns;
 	}
-
-
-	public void setColumns(int columns) {
-		this.columns = columns;
-	}
+	
 	
 	public Piece piece(int row, int column) {  // retorna a matriz pieces na linha row e coluna column
+		if (!positionExists(row, column)) { // se a posição não existe, lance a exception
+			throw new BoardException("Position not on the board");
+		}
 		return pieces[row][column];
 	}
 	
 	public Piece piece(Position position) { // sobrecarga
+		if (!positionExists(position)) { // se a posição não existe, lance a exception
+			throw new BoardException("Position not on the board");
+		}
 		return pieces[position.getRow()][position.getColumn()];
 	}
 	
 	public void placePiece(Piece piece, Position position) {
+		if (thereIsAPiece(position)) { // se já existe uma peça nessa posição lança a exception
+			throw new BoardException("There is already a piece on position: " + position);
+		}
 		pieces[position.getRow()][position.getColumn()] = piece; // Matriz declarada no tabuleiro e instanciada no construtor. Atribui a peça na posição linha/coluna da matriz. 
 		piece.position = position; // Posição não é mais nula.
+	}	
+	
+	private boolean positionExists(int row, int column) { // teste pela linha e coluna, existe quando a posição está dentro do tabuleiro
+		return row >= 0 && row < rows && column >= 0 && column < columns; // rows --> altura do tabuleiro | columns --> quantidade de colunas
 	}
+	
+	public boolean positionExists(Position position) {
+		return positionExists(position.getRow(), position.getColumn()); // reaproveitando o metodo de cima para testar se a posição existe
+	}
+	
+	public boolean thereIsAPiece(Position position) { // teste para testar se há uma peça.
+		if (!positionExists(position)) { // se a posição não existe, lance a exception
+			throw new BoardException("Position not on the board");
+		}
+		return piece(position) != null; // se a peça for diferente de nulo, há uma peça na posição.
+	}
+
 	
 }
