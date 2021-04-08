@@ -3,6 +3,9 @@
 package chess;
 
 import boardgame.Board;
+import boardgame.BoardException;
+import boardgame.Piece;
+import boardgame.Position;
 import chess.pieces.King;
 import chess.pieces.Rook;
 
@@ -23,6 +26,27 @@ public class ChessMatch {
 			}	// receba board.piece ij com downcasting para ChessPiece, interpretando como peça de xadrez e não como uma peça comum.
 		}
 		return mat;
+	}
+	
+	public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) { // posição de origem e destino.
+		Position source = sourcePosition.toPosition(); // converte para posição da Matriz.
+		Position target = targetPosition.toPosition();	// converte para posição da Matriz.
+		validateSourcePosition(source); // Validar a posição de origem, se não existir, lança exception.
+		Piece capturedPiece = makeMove(source, target); // recebe o resultado da operação makemove que realiza o movimento da peça.
+		return (ChessPiece)capturedPiece; // downcasting para ChessPiece, antes era Piece.
+	}
+	
+	private Piece makeMove(Position source, Position target) { // Realizando um movimento.
+		Piece p = board.removePiece(source); // Remove a peça da posição de origem
+		Piece capturedPiece = board.removePiece(target); // Remover a possivel peça que está na posição de destino, sendo capturada.
+		board.placePiece(p, target); // Peça p: Coloca a peça da posição de origem na posição de destino
+		return capturedPiece; // retorna a peça capturada.
+	}
+	
+	private void validateSourcePosition(Position position) { 
+		if (!board.thereIsAPiece(position)) { // Se não existir uma peça nessa posição, exception.
+			throw new BoardException("Position not on the board");
+		}
 	}
 	
 	private void placeNewPiece(char column, int row, ChessPiece piece) { // Colocar peça passando a posição nas coordenadas do xadrez.
