@@ -10,11 +10,23 @@ import chess.pieces.Rook;
 
 public class ChessMatch {
 	
+	private int turn;
+	private Color currentPlayer;
 	private Board board;
 	
 	public ChessMatch() {
 		board = new Board(8, 8); // Tabuleiro 8x8
+		turn = 1;
+		currentPlayer = Color.WHITE;
 		initialSetup();
+	}
+	
+	public int getTurn() {
+		return turn;
+	}
+	
+	public Color getCurrentPlayer() {
+		return currentPlayer;
 	}
 	
 	public ChessPiece[][] getPieces() { // Percorre a matriz de peças do board e para cada peça fazemos um downcasting para ChessPiece.
@@ -39,6 +51,7 @@ public class ChessMatch {
 		validateSourcePosition(source); // Validar a posição de origem, se não existir, lança exception.
 		validateTargetPosition(source, target);
 		Piece capturedPiece = makeMove(source, target); // recebe o resultado da operação makemove que realiza o movimento da peça.
+		nextTurn();
 		return (ChessPiece)capturedPiece; // downcasting para ChessPiece, antes era Piece.
 	}
 	
@@ -53,6 +66,9 @@ public class ChessMatch {
 		if (!board.thereIsAPiece(position)) { // Se não existir uma peça nessa posição, exception.
 			throw new ChessException("There is no piece on source position");
 		}
+		if (currentPlayer != ((ChessPiece)board.piece(position)).getColor()) { // Downcasting para ChessPiece e testa a cor da peça.
+			throw new ChessException("The chosen piece is not yours");
+	}
 		if (!board.piece(position).isThereAnyPossibleMove()) { // Se não haver nenhum movimento possível, exception.
 			throw new ChessException("There is no possible moves for the chosen piece");
 		}
@@ -62,6 +78,11 @@ public class ChessMatch {
 		if (!board.piece(source).possibleMove(target)) { // Se para peça de origem a posição de destino não é um movimento possivel, exception.
 			throw new ChessException("The chosen piece can't move to target position");
 		}
+	}
+	
+	private void nextTurn() {
+		turn++;
+		currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE; // se jogador atual for igual a color White, agora será color Black, caso contrario color.White.
 	}
 	
 	private void placeNewPiece(char column, int row, ChessPiece piece) { // Colocar peça passando a posição nas coordenadas do xadrez.
